@@ -1,0 +1,57 @@
+version: "3"
+
+services:
+  api-fullcycle-rocks:
+    build:
+      context: ./api
+    container_name: api-fullcycle-rocks
+    env_file:
+      - ./.env
+    volumes:
+      - ./api:/app
+      - /app/node_modules
+    ports:
+      - ${APP_PORT}:${APP_PORT}
+    networks:
+      - fullcycle-rocks
+    depends_on:
+      - "db"
+    restart: on-failure
+
+  proxy:
+    image: nginx
+    container_name: funcycle-rocks-proxy
+    env_file:
+      - ./.env
+    ports:
+      - ${PROXY_EXTERNAL_PORT}:${PROXY_INTERNAL_PORT}
+    volumes:
+      - ./nginx:/usr/share/nginx/html
+    networks:
+      - fullcycle-rocks
+    depends_on:
+      - "db"
+      - "api-fullcycle-rocks"
+    restart: on-failure
+
+  db:
+    image: mysql
+    container_name: fullcycle-db
+    env_file:
+      - ./.env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - ${MYSQL_DB_PORT}
+    volumes:
+      - ./db:/var/lib/mysql
+    networks:
+      - fullcycle-rocks
+    restart: on-failure
+
+networks: 
+  fullcycle-rocks:
+    driver: bridge
