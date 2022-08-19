@@ -11,7 +11,7 @@ services:
       - ./api:/app
       - /app/node_modules
     ports:
-      - ${APP_PORT}:${APP_PORT}
+      - ${APP_PORT}
     networks:
       - fullcycle-rocks
     depends_on:
@@ -26,7 +26,7 @@ services:
     ports:
       - ${PROXY_EXTERNAL_PORT}:${PROXY_INTERNAL_PORT}
     volumes:
-      - ./nginx:/usr/share/nginx/html
+      - ./nginx:/etc/nginx/conf.d/
     networks:
       - fullcycle-rocks
     depends_on:
