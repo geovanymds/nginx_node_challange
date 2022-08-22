@@ -1,26 +1,9 @@
 version: "3"
 
 services:
-  api-fullcycle-rocks:
-    build:
-      context: ./api
-    container_name: api-fullcycle-rocks
-    env_file:
-      - ./.env
-    volumes:
-      - ./api:/app
-      - /app/node_modules
-    ports:
-      - ${APP_PORT}
-    networks:
-      - fullcycle-rocks
-    depends_on:
-      - "db"
-    restart: on-failure
-
   proxy:
     image: nginx
-    container_name: funcycle-rocks-proxy
+    container_name: fullcycle-rocks-proxy
     env_file:
       - ./.env
     ports:
@@ -30,8 +13,9 @@ services:
     networks:
       - fullcycle-rocks
     depends_on:
-      - "db"
-      - "api-fullcycle-rocks"
+      - db
+      - api-fullcycle-rocks
+      - db-shadow
     restart: on-failure
 
   db:
@@ -46,10 +30,44 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - ${MYSQL_DB_PORT}
-    volumes:
-      - ./db:/var/lib/mysql
+    depends_on:
+      - db-shadow
     networks:
       - fullcycle-rocks
+    restart: on-failure
+
+  db-shadow:
+    image: mysql
+    container_name: fullcycle-db-shadow
+    env_file:
+      - ./.env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - ${MYSQL_DB_PORT}
+    networks:
+      - fullcycle-rocks
+    restart: on-failure
+  
+  api-fullcycle-rocks:
+    build:
+      context: ./api
+    container_name: api-fullcycle-rocks
+    env_file:
+      - ./.env
+    volumes:
+      - ./api:/app
+      - /app/node_modules
+    ports:
+      - ${APP_PORT}
+    networks:
+      - fullcycle-rocks
+    depends_on:
+      - db
+      - db-shadow
     restart: on-failure
 
 networks: 

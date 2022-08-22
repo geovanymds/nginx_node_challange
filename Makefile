@@ -1,2 +1,4 @@
 proxy:
-	docker exec -it funcycle-rocks-proxy /bin/sh
+	docker exec -it fullcycle-rocks-proxy /bin/sh
+api:
+	docker exec -it api-fullcycle-rocks /bin/sh
