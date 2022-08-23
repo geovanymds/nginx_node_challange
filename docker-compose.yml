@@ -56,6 +56,7 @@ services:
     build:
       context: ./api
     container_name: api-fullcycle-rocks
+    entrypoint: dockerize -wait tcp://db:3306 -timeout 20s npm start
     env_file:
       - ./.env
     volumes:
